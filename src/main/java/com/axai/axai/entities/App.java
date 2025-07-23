@@ -1,15 +1,13 @@
 package com.axai.axai.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
 @Entity
 public class App {
     @Id
+    @GeneratedValue
     private UUID id;
     private String name;
     @ManyToOne

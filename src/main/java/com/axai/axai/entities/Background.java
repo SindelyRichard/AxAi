@@ -1,9 +1,6 @@
 package com.axai.axai.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.UUID;
@@ -12,6 +9,7 @@ import java.util.UUID;
 @Data
 public class Background {
     @Id
+    @GeneratedValue
     private UUID id;
 
     private String name;
