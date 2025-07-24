@@ -3,6 +3,8 @@ package com.axai.axai.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,7 +16,6 @@ public class Theme {
 
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToMany(mappedBy = "theme")
+    private List<User> users = new ArrayList<>();
 }

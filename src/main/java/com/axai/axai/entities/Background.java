@@ -14,7 +14,7 @@ public class Background {
 
     private String name;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 }
