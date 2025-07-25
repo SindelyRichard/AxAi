@@ -20,5 +20,5 @@ public class Menu {
     private User user;
 
     @OneToMany(mappedBy = "menu")
-    private List<App> items = new ArrayList<>();
+    private List<SubMenu> subMenus = new ArrayList<>();
 }
