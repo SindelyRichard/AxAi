@@ -12,12 +12,13 @@ import java.util.UUID;
 public class AppService {
     private final AppRepository appRepository;
 
-    public App addApp(String name){
+    public App addApp(String name,String iconName){
         if(appRepository.existsByName(name)){
             throw new RuntimeException("App already exists!");
         }
         App app = new App();
         app.setName(name);
+        app.setIconName(iconName);
 
         return appRepository.save(app);
     }
@@ -33,5 +34,17 @@ public class AppService {
         App app =  appRepository.findById(appId).orElseThrow(()->new RuntimeException("App not exists!"));
 
         System.out.println(app.getName()+" app is running...");
+    }
+
+    public App updateIcon(UUID appId,String iconName){
+        App app = appRepository.findById(appId).orElseThrow(()->new RuntimeException("App not found!"));
+        app.setIconName(iconName);
+        return appRepository.save(app);
+    }
+
+    public App deleteIcon(UUID appId){
+        App app =  appRepository.findById(appId).orElseThrow(()->new RuntimeException("App not found!"));
+        app.setIconName(null);
+        return appRepository.save(app);
     }
 }
