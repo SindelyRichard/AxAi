@@ -21,11 +21,15 @@ public class User {
     private Menu menu;
 
     @OneToMany(mappedBy = "user")
-    private List<Background> background = new ArrayList<>();
+    private List<Background> backgrounds = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "theme_id")
     private Theme theme;
+
+    @ManyToOne
+    @JoinColumn(name = "selected_background_id")
+    private Background selectedBackground;
 
     public User() {
 
