@@ -1,19 +1,26 @@
 package com.axai.axai.service;
 
-import com.axai.axai.entities.User;
-import com.axai.axai.repository.UserRepository;
+import com.axai.axai.entities.*;
+import com.axai.axai.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BackgroundRepository backgroundRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final ThemeRepository themeRepository;
+    private final AppRepository appRepository;
+    private final MenuRepository menuRepository;
+    private final SubMenuRepository  subMenuRepository;
 
     public User createUser(String username, String password) {
         if(userRepository.existsByUsername(username)){
@@ -24,7 +31,48 @@ public class UserService {
         user.setUsername(username);
         user.setPassword(encodedPassword);
 
-        return userRepository.save(user);
+        Theme defaultTheme = themeRepository.findByName("Default")
+                .orElseThrow(() -> new RuntimeException("Default theme not found"));
+        user.setTheme(defaultTheme);
+
+        User savedUser = userRepository.save(user);
+
+        Background background = new Background();
+        background.setUser(savedUser);
+        background.setName("Default");
+        backgroundRepository.save(background);
+
+        savedUser.setSelectedBackground(background);
+
+        Menu menu = new Menu();
+        menu.setName("Main menu");
+        menu.setUser(savedUser);
+
+        SubMenu subMenu = new SubMenu();
+        subMenu.setName("Apps");
+        subMenu.setMenu(menu);
+
+        App settingsApp = new App();
+        settingsApp.setName("Settings");
+        settingsApp.setIconName("settings_icon");
+
+        App notesApp = new App();
+        notesApp.setName("Notes");
+        notesApp.setIconName("notes_icon");
+
+        List<App> apps = List.of(settingsApp, notesApp);
+        settingsApp.setSubMenuList(List.of(subMenu));
+        notesApp.setSubMenuList(List.of(subMenu));
+        subMenu.setApps(apps);
+
+        menu.setSubMenus(List.of(subMenu));
+        savedUser.setMenu(menu);
+
+        menuRepository.save(menu);
+        appRepository.saveAll(apps);
+        subMenuRepository.save(subMenu);
+
+        return userRepository.save(savedUser);
     }
 
     public User renameUser(UUID id,String newUsername){
@@ -36,5 +84,10 @@ public class UserService {
     public void deleteUser(UUID id){
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
+    }
+
+    public boolean checkIfUserExists(String username,String password){
+        String encodedPassword = passwordEncoder.encode(password);
+        return userRepository.existsByUsernameAndPassword(username, encodedPassword);
     }
 }

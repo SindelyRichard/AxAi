@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface ThemeRepository extends JpaRepository<Theme, UUID> {
     boolean existsByName(String name);
+    Optional<Theme> findByName(String name);
 }

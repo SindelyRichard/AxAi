@@ -11,4 +11,6 @@ public interface BackgroundRepository extends JpaRepository<Background, UUID> {
     boolean existsByName(String name);
 
     Optional<Background> findByNameAndUser(String name, User user);
+
+    Optional<Background> findByName(String name);
 }
