@@ -80,7 +80,8 @@ public class CliHandler {
         user.setUsername(username);
         user.setPassword(password);
 
-
+        userService.createUser(username,password);
+        
         System.out.println("User: "+username + " created.");
     }
 
