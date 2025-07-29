@@ -2,6 +2,7 @@ package com.axai.axai.service;
 
 import com.axai.axai.entities.*;
 import com.axai.axai.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,8 +87,28 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void deleteUser(UUID id){
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public void deleteUser(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getMenu() != null) {
+            Menu menu = user.getMenu();
+
+            for (SubMenu subMenu : menu.getSubMenus()) {
+                subMenu.getApps().forEach(app -> {
+                    app.getSubMenuList().remove(subMenu);
+                });
+                subMenuRepository.delete(subMenu);
+            }
+
+            menuRepository.delete(menu);
+        }
+
+        if (user.getSelectedBackground() != null) {
+            backgroundRepository.delete(user.getSelectedBackground());
+        }
+
         userRepository.delete(user);
     }
 

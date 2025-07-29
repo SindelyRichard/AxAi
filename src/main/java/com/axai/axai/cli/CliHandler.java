@@ -21,7 +21,7 @@ public class CliHandler {
     String usName = "";
 
     public void start(){
-        System.out.println("Welcome! Log in or create a user. Use help command for help.");
+        System.out.println("\nWelcome! Log in or create a user. Use help command for help.\n");
 
         boolean running = true;
 
@@ -147,6 +147,8 @@ public class CliHandler {
 
         if(userService.checkIfUserExists(loggedinUser.getUsername(),password)){
             userService.deleteUser(loggedinUser.getId());
+            loggedinUser = null;
+            usName = "";
         }else{
             System.out.println("Invalid password.");
         }
@@ -188,8 +190,7 @@ public class CliHandler {
             System.out.println("Login successful.");
             usName=username;
         }else{
-            System.out.println("Login failed.");
-            login();
+            System.out.println("Login failed. Try again.");
         }
     }
 }
