@@ -55,10 +55,12 @@ public class UserService {
         App settingsApp = new App();
         settingsApp.setName("Settings");
         settingsApp.setIconName("settings_icon");
+        settingsApp.setUser(savedUser);
 
         App notesApp = new App();
         notesApp.setName("Notes");
         notesApp.setIconName("notes_icon");
+        notesApp.setUser(savedUser);
 
         List<App> apps = List.of(settingsApp, notesApp);
         settingsApp.setSubMenuList(List.of(subMenu));

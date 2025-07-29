@@ -31,6 +31,9 @@ public class User {
     @JoinColumn(name = "selected_background_id")
     private Background selectedBackground;
 
+    @OneToMany(mappedBy = "user")
+    private List<App> apps = new ArrayList<>();
+
     public User() {
 
     }

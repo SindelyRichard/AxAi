@@ -9,7 +9,9 @@ import com.axai.axai.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -72,6 +74,21 @@ public class CliHandler {
                     case "menu":
                         listMenu();
                         break;
+                    case "create menu":
+                        createSubMenu();
+                        break;
+                    case "rename menu":
+                        renameSubMenu();
+                        break;
+                    case "delete menu":
+                        deleteSubMenu();
+                        break;
+                    case "add app":
+                        addAppToSubMenu();
+                        break;
+                    case "remove app menu":
+                        removeAppFromSubMenu();
+                        break;
                     case "help":
                         System.out.println(
                                 """
@@ -81,6 +98,11 @@ public class CliHandler {
                                         Change your password: change password
                                         Delete your user: delete user
                                         List your menu:menu
+                                        Create new submenu: create menu
+                                        Rename submenu: rename menu
+                                        Delete submenu: delete menu
+                                        Add app to submenu: add app
+                                        Remove app from submenu: remove app menu
                                         """
                         );
                         break;
@@ -92,6 +114,83 @@ public class CliHandler {
                 }
             }
         }
+    }
+    private void removeAppFromSubMenu(){
+        System.out.println("Enter submenu name:");
+        String subMenuName = scanner.nextLine();
+
+        System.out.println("Enter app name to remove:");
+        String appName = scanner.nextLine();
+
+        try {
+            SubMenu updated = menuService.removeAppFromSubMenu(
+                    loggedinUser.getMenu().getId(),
+                    subMenuName,
+                    appName
+            );
+            System.out.println("App '" + appName + "' removed from submenu '" + subMenuName + "'.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void addAppToSubMenu() {
+        System.out.println("Enter submenu name to add apps to:");
+        String subMenuName = scanner.nextLine();
+
+        System.out.println("Enter app name:");
+        String appName = scanner.nextLine();
+
+        try {
+            SubMenu updated = menuService.addAppToSubMenu(
+                    loggedinUser.getMenu().getId(),
+                    subMenuName,
+                    appName,
+                    loggedinUser
+            );
+            System.out.println("Apps added to submenu '" + subMenuName + "'.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
+    private void deleteSubMenu() {
+        System.out.println("Enter submenu name to delete:");
+        String subMenuName = scanner.nextLine();
+
+        try {
+            UUID menuId = loggedinUser.getMenu().getId();
+            menuService.deleteSubMenu(menuId, subMenuName);
+            System.out.println("Submenu '" + subMenuName + "' deleted.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void renameSubMenu() {
+        System.out.println("Enter current submenu name:");
+        String oldName = scanner.nextLine();
+        System.out.println("Enter new submenu name:");
+        String newName = scanner.nextLine();
+
+        try {
+            UUID menuId = loggedinUser.getMenu().getId();
+            SubMenu updated = menuService.updateSubMenuName(menuId, oldName, newName);
+            System.out.println("Submenu renamed to: " + updated.getName());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void createSubMenu(){
+        System.out.println("Enter submenu name:");
+        String name = scanner.nextLine();
+
+        UUID menuId = loggedinUser.getMenu().getId();
+        SubMenu created = menuService.createSubMenu(menuId, name);
+
+        System.out.println("Submenu created: " + created.getName());
     }
 
     private void createUser(){

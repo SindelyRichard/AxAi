@@ -21,5 +21,9 @@ public class App {
 
     private String iconName;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
 }
