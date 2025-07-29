@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,13 +80,25 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User changePassword(UUID id,String newPassword){
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return userRepository.save(user);
+    }
+
     public void deleteUser(UUID id){
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
     }
 
     public boolean checkIfUserExists(String username,String password){
-        String encodedPassword = passwordEncoder.encode(password);
-        return userRepository.existsByUsernameAndPassword(username, encodedPassword);
+        User user = userRepository.findByUsername(username);
+        if(user == null){
+            return false;
+        }
+        return passwordEncoder.matches(password,user.getPassword());
+    }
+    public User getUser(String username){
+        return userRepository.findByUsername(username);
     }
 }

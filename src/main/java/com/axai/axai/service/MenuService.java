@@ -6,6 +6,7 @@ import com.axai.axai.entities.SubMenu;
 import com.axai.axai.repository.AppRepository;
 import com.axai.axai.repository.MenuRepository;
 import com.axai.axai.repository.SubMenuRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -59,5 +60,16 @@ public class MenuService {
             throw new RuntimeException("SubMenu not found");
         }
         subMenuRepository.deleteById(subMenuId);
+    }
+
+    @Transactional
+    public Menu getFullMenuByUserId(UUID userId) {
+        Menu menu = menuRepository.findMenuWithSubMenusByUserId(userId);
+
+        menu.getSubMenus().forEach(subMenu -> {
+            subMenu.getApps().size();
+        });
+
+        return menu;
     }
 }
