@@ -24,11 +24,10 @@ public class ThemeService {
         return themeRepository.save(theme);
     }
 
-    public void setTheme(UUID userId,UUID themeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public void setTheme(String username,String themeName) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Theme theme = themeRepository.findById(themeId)
+        Theme theme = themeRepository.findByName(themeName)
                 .orElseThrow(() -> new RuntimeException("Theme not found"));
 
         user.setTheme(theme);

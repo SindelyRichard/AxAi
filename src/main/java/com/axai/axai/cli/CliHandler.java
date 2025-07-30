@@ -1,11 +1,9 @@
 package com.axai.axai.cli;
 
-import com.axai.axai.entities.App;
-import com.axai.axai.entities.Menu;
-import com.axai.axai.entities.SubMenu;
-import com.axai.axai.entities.User;
+import com.axai.axai.entities.*;
 import com.axai.axai.service.AppService;
 import com.axai.axai.service.MenuService;
+import com.axai.axai.service.ThemeService;
 import com.axai.axai.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,6 +18,7 @@ public class CliHandler {
     private final UserService userService;
     private final MenuService menuService;
     private final AppService appService;
+    private final ThemeService themeService;
 
     Scanner scanner = new Scanner(System.in);
     User loggedinUser;
@@ -107,6 +106,12 @@ public class CliHandler {
                     case "run app":
                         runApp();
                         break;
+                    case "set theme":
+                        setTheme();
+                        break;
+                    case "add theme":
+                        addTheme();
+                        break;
                     case "help":
                         System.out.println(
                                 """
@@ -126,6 +131,8 @@ public class CliHandler {
                                         Update app icon: update app icon
                                         Delete app icon: delete app icon
                                         Run an app: run app
+                                        Set your theme: set theme
+                                        Add theme: add theme
                                         """
                         );
                         break;
@@ -138,6 +145,30 @@ public class CliHandler {
                         break;
                 }
             }
+        }
+    }
+
+    private void addTheme(){
+        System.out.println("Enter new theme name: ");
+        String themeName = scanner.nextLine();
+
+        try{
+            Theme theme = themeService.addTheme(themeName);
+            System.out.println("Theme: " + theme.getName()+" created successfully.");
+        } catch (RuntimeException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void setTheme(){
+        System.out.println("Enter theme name: ");
+        String themeName = scanner.nextLine();
+
+        try{
+            themeService.setTheme(loggedinUser.getUsername(), themeName);
+            System.out.println("Theme: "+themeName+" set successful.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: "+e.getMessage());
         }
     }
 

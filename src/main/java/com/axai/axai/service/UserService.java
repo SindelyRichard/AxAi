@@ -115,13 +115,11 @@ public class UserService {
     }
 
     public boolean checkIfUserExists(String username,String password){
-        User user = userRepository.findByUsername(username);
-        if(user == null){
-            return false;
-        }
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
         return passwordEncoder.matches(password,user.getPassword());
     }
     public User getUser(String username){
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
