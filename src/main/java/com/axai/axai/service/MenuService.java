@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,10 +41,12 @@ public class MenuService {
         return subMenuRepository.save(subMenu);
     }
 
+    @Transactional
     public SubMenu addAppToSubMenu(UUID menuId, String subMenuName, String appName, User user) {
         SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
-        Optional<App> appsToAdd = appRepository.findByNameAndUser(appName,user);
-        subMenu.setApps(appsToAdd.stream().toList());
+        App appToAdd = appRepository.findByNameAndUser(appName,user).orElseThrow(() -> new RuntimeException("App not found"));
+        List<App> appsInSubMenu = subMenu.getApps();
+        appsInSubMenu.add(appToAdd);
         return subMenuRepository.save(subMenu);
     }
 
