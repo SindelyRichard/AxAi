@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AppRepository extends JpaRepository<App, UUID> {
-    boolean existsByName(String name);
+    boolean existsByNameAndUser(String name,User user);
 
     Optional<App> findByName(String name);
 

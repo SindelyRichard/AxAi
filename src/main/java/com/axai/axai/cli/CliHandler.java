@@ -4,21 +4,24 @@ import com.axai.axai.entities.App;
 import com.axai.axai.entities.Menu;
 import com.axai.axai.entities.SubMenu;
 import com.axai.axai.entities.User;
+import com.axai.axai.service.AppService;
 import com.axai.axai.service.MenuService;
 import com.axai.axai.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class CliHandler {
-    Scanner scanner = new Scanner(System.in);
+
     private final UserService userService;
     private final MenuService menuService;
+    private final AppService appService;
+
+    Scanner scanner = new Scanner(System.in);
     User loggedinUser;
     String usName = "";
 
@@ -89,6 +92,21 @@ public class CliHandler {
                     case "remove app menu":
                         removeAppFromSubMenu();
                         break;
+                    case "download app":
+                        createApp();
+                        break;
+                    case "delete app":
+                        deleteApp();
+                        break;
+                    case "update app icon":
+                        updateAppIcon();
+                        break;
+                    case "delete app icon":
+                        deleteAppIcon();
+                        break;
+                    case "run app":
+                        runApp();
+                        break;
                     case "help":
                         System.out.println(
                                 """
@@ -103,6 +121,11 @@ public class CliHandler {
                                         Delete submenu: delete menu
                                         Add app to submenu: add app
                                         Remove app from submenu: remove app menu
+                                        Create app: download app
+                                        Delete app: delete app
+                                        Update app icon: update app icon
+                                        Delete app icon: delete app icon
+                                        Run an app: run app
                                         """
                         );
                         break;
@@ -110,11 +133,79 @@ public class CliHandler {
                         running = false;
                         loggedinUser = null;
                         break;
-
+                    default:
+                        System.out.println("Invalid input. Please try again.");
+                        break;
                 }
             }
         }
     }
+
+    private void runApp(){
+        System.out.println("Enter app name:");
+        String appName = scanner.nextLine();
+
+        try {
+            appService.runApp(appName,loggedinUser);
+        }catch (RuntimeException e){
+            System.out.println("Error: "+e.getMessage());
+        }
+    }
+
+    private void deleteAppIcon(){
+        System.out.println("Enter app name:");
+        String appName = scanner.nextLine();
+
+        try{
+            App app = appService.deleteIcon(appName,loggedinUser);
+            System.out.println(app.getName()+"'s icon deleted successfully.");
+        }catch (RuntimeException e){
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void updateAppIcon() {
+        System.out.println("Enter app name:");
+        String appName = scanner.nextLine();
+
+        System.out.println("Enter new icon name:");
+        String newIcon = scanner.nextLine();
+
+        try {
+            App app = appService.updateIcon(appName, newIcon,loggedinUser);
+            System.out.println("Icon updated successfully for app '" + app.getName() + "'.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void deleteApp() {
+        System.out.println("Enter app name to delete:");
+        String appName = scanner.nextLine();
+
+        try {
+            appService.deleteApp(appName,loggedinUser);
+            System.out.println("App '" + appName + "' deleted successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void createApp() {
+        System.out.println("Enter app name:");
+        String name = scanner.nextLine();
+
+        System.out.println("Enter icon name (or leave blank):");
+        String iconName = scanner.nextLine();
+
+        try {
+            App app = appService.addApp(name, iconName.isBlank() ? null : iconName,loggedinUser);
+            System.out.println("App '" + app.getName() + "' added successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
     private void removeAppFromSubMenu(){
         System.out.println("Enter submenu name:");
         String subMenuName = scanner.nextLine();
@@ -128,7 +219,7 @@ public class CliHandler {
                     subMenuName,
                     appName
             );
-            System.out.println("App '" + appName + "' removed from submenu '" + subMenuName + "'.");
+            System.out.println("App '" + appName + "' removed from submenu '" + updated.getName() + "'.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -148,7 +239,7 @@ public class CliHandler {
                     appName,
                     loggedinUser
             );
-            System.out.println("Apps added to submenu '" + subMenuName + "'.");
+            System.out.println("Apps added to submenu '" + updated.getName() + "'.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -187,10 +278,14 @@ public class CliHandler {
         System.out.println("Enter submenu name:");
         String name = scanner.nextLine();
 
-        UUID menuId = loggedinUser.getMenu().getId();
-        SubMenu created = menuService.createSubMenu(menuId, name);
+        try {
+            UUID menuId = loggedinUser.getMenu().getId();
+            SubMenu created = menuService.createSubMenu(menuId, name);
 
-        System.out.println("Submenu created: " + created.getName());
+            System.out.println("Submenu created: " + created.getName());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     private void createUser(){
@@ -204,9 +299,14 @@ public class CliHandler {
         user.setUsername(username);
         user.setPassword(password);
 
-        User created = userService.createUser(username,password);
 
-        System.out.println("User: "+username + " created.");
+        try {
+            User created = userService.createUser(username, password);
+
+            System.out.println("User: " + created.getUsername() + " created.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     private void renameUser(){
@@ -215,11 +315,15 @@ public class CliHandler {
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
 
-        if(userService.checkIfUserExists(loggedinUser.getUsername(),password)){
-            User user = userService.renameUser(loggedinUser.getId(),newName);
-            System.out.println("Username updated successfully.");
-        }else{
-            System.out.println("Invalid password.");
+        try {
+            if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
+                User user = userService.renameUser(loggedinUser.getId(), newName);
+                System.out.println("Username updated to " + user.getUsername() + "successfully.");
+            } else {
+                System.out.println("Invalid password.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
     }
@@ -231,11 +335,15 @@ public class CliHandler {
         System.out.println("Enter your new password: ");
         String newPassword = scanner.nextLine();
 
-        if(userService.checkIfUserExists(loggedinUser.getUsername(),password)){
-            User user = userService.changePassword(loggedinUser.getId(),newPassword);
-            System.out.println("Password updated successfully.");
-        }else{
-            System.out.println("Invalid password.");
+        try {
+            if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
+                User user = userService.changePassword(loggedinUser.getId(), newPassword);
+                System.out.println("User's: " + user.getUsername() + "Password updated successfully.");
+            } else {
+                System.out.println("Invalid password.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
     }
@@ -244,36 +352,44 @@ public class CliHandler {
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
 
-        if(userService.checkIfUserExists(loggedinUser.getUsername(),password)){
-            userService.deleteUser(loggedinUser.getId());
-            loggedinUser = null;
-            usName = "";
-        }else{
-            System.out.println("Invalid password.");
+        try {
+            if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
+                userService.deleteUser(loggedinUser.getId());
+                loggedinUser = null;
+                usName = "";
+            } else {
+                System.out.println("Invalid password.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void listMenu(){
-        Menu menu = menuService.getFullMenuByUserId(loggedinUser.getId());
+        try {
+            Menu menu = menuService.getFullMenuByUserId(loggedinUser.getId());
 
-        if (menu == null) {
-            System.out.println("No menu found.");
-            return;
-        }
-
-        System.out.println(menu.getName());
-
-        for (SubMenu subMenu : menu.getSubMenus()) {
-            System.out.println("  - " + subMenu.getName());
-
-            if (subMenu.getApps().isEmpty()) {
-                System.out.println("    (No apps)");
-                continue;
+            if (menu == null) {
+                System.out.println("No menu found.");
+                return;
             }
 
-            for (App app : subMenu.getApps()) {
-                System.out.println("    - " + app.getName());
+            System.out.println(menu.getName());
+
+            for (SubMenu subMenu : menu.getSubMenus()) {
+                System.out.println("  - " + subMenu.getName());
+
+                if (subMenu.getApps().isEmpty()) {
+                    System.out.println("    (No apps)");
+                    continue;
+                }
+
+                for (App app : subMenu.getApps()) {
+                    System.out.println("    - " + app.getName());
+                }
             }
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -284,12 +400,16 @@ public class CliHandler {
         System.out.println("Enter password: ");
         String password = scanner.nextLine();
 
-        if(userService.checkIfUserExists(username,password)){
-            loggedinUser = userService.getUser(username);
-            System.out.println("Login successful.");
-            usName=username;
-        }else{
-            System.out.println("Login failed. Try again.");
+        try {
+            if (userService.checkIfUserExists(username, password)) {
+                loggedinUser = userService.getUser(username);
+                System.out.println("Login successful.");
+                usName = username;
+            } else {
+                System.out.println("Login failed. Try again.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
