@@ -38,4 +38,27 @@ public class DbInitializer {
             themeRepository.save(theme);
         }
     }
+
+    public static void createDbFromProperties() {
+        try {
+            var props = new java.util.Properties();
+            try (var input = DbInitializer.class.getClassLoader().getResourceAsStream("application.properties")) {
+                props.load(input);
+            }
+
+            String url = props.getProperty("spring.datasource.url");
+            String username = props.getProperty("spring.datasource.username");
+            String password = props.getProperty("spring.datasource.password");
+            String dbName = props.getProperty("spring.datasource.database-name");
+
+            if (url != null && dbName != null) {
+                DbCreator.createDatabaseIfNotExists(url, username, password, dbName);
+            } else {
+                System.err.println("Error creating database from properties");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

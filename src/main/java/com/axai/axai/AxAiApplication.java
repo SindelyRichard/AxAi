@@ -1,6 +1,7 @@
 package com.axai.axai;
 
 import com.axai.axai.cli.CliHandler;
+import com.axai.axai.database.DbInitializer;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,8 @@ public class AxAiApplication implements CommandLineRunner {
     }
 
     public static void main(String[] args) {
+        DbInitializer.createDbFromProperties();
+
         SpringApplication.run(AxAiApplication.class, args);
     }
 
