@@ -2,10 +2,7 @@ package com.axai.axai.cli;
 
 import com.axai.axai.ai.Ai;
 import com.axai.axai.entities.*;
-import com.axai.axai.service.AppService;
-import com.axai.axai.service.MenuService;
-import com.axai.axai.service.ThemeService;
-import com.axai.axai.service.UserService;
+import com.axai.axai.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +19,7 @@ public class CliHandler {
     private final ThemeService themeService;
 
     private final Ai ai;
+    private final BackgroundService backgroundService;
 
 
     Scanner scanner = new Scanner(System.in);
@@ -142,6 +140,12 @@ public class CliHandler {
                         case "simulation":
                             runSimulation();
                             break;
+                        case "add-background":
+                            createBackground(command);
+                            break;
+                        case "set-background":
+                            selectBackground(command);
+                            break;
                         case "help":
                             System.out.println(
                                     """
@@ -163,6 +167,8 @@ public class CliHandler {
                                             Run an app: run-app appName
                                             Set your theme: set-theme themeName
                                             Add theme: add-theme themeName
+                                            Add background: add-background backgroundName
+                                            Choose background: set-background backgroundName
                                             """
                             );
                             break;
@@ -229,7 +235,7 @@ public class CliHandler {
         String input = scanner.nextLine();
 
         String response =  ai.askGPT("This is a command: "+input+". Tell me, what do I need to do:\n" +
-                "                                        List your menu:menu\n" +
+                "                                        List my menu: format is=menu\n" +
                 "                                        Create new submenu: format is=create-menu menuName\n" +
                 "                                        Rename submenu: format is=rename-menu oldSubMenuName newSubMenuName\n" +
                 "                                        Delete submenu:format is=delete-menu subMenuName\n" +
@@ -243,6 +249,8 @@ public class CliHandler {
                 "                                        Set your theme:format is=set-theme themeName\n" +
                 "                                        Add theme:format is=add-theme themeName\n"+
                 "                                        Run a simulation: format is=simulation\n"+
+                "                                        Add background: add-background backgroundName\n"+
+                "                                        Choose/set background: set-background backgroundName\n"+
                 "                                        ;  Give me the right command and parameter as a String.Format is: command parameter or command parameter1 parameter2.Example:download-app appName iconName.Put space between the parameters and Respond only with the command in the exact format, like: command param1 param2. DO NOT explain anything, DO NOT start the answer with anything else.");
 
 
@@ -348,10 +356,10 @@ public class CliHandler {
     private void createApp(String[] command) {
         String name = command[1];
 
-        String iconName = command[2];
+        String iconName = command.length > 2 ? command[2] : null;
 
         try {
-            App app = appService.addApp(name, iconName.isBlank() ? null : iconName,loggedinUser);
+            App app = appService.addApp(name, iconName,loggedinUser);
             System.out.println("App '" + app.getName() + "' added successfully.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
@@ -596,6 +604,30 @@ public class CliHandler {
             }
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Creates a background for a specific user.
+    private void createBackground(String[] command){
+        String name = command[1];
+
+        try{
+            Background background = backgroundService.addBackground(loggedinUser.getId(), name);
+            System.out.println("Background added: " + background.getName());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Selects a background for the logged-in user
+    private void selectBackground(String[] command){
+        String name = command[1];
+
+        try{
+            loggedinUser = backgroundService.selectBackground(loggedinUser.getId(), name);
+            System.out.println("Background selected: " + loggedinUser.getSelectedBackground().getName());
+        } catch (RuntimeException e) {
+            System.out.println("Error");
         }
     }
 }
