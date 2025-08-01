@@ -1,5 +1,7 @@
 package com.axai.axai.cli;
 
+import com.axai.axai.ai.Ai;
+import com.axai.axai.ai.AiHandler;
 import com.axai.axai.entities.*;
 import com.axai.axai.service.AppService;
 import com.axai.axai.service.MenuService;
@@ -19,10 +21,15 @@ public class CliHandler {
     private final MenuService menuService;
     private final AppService appService;
     private final ThemeService themeService;
+    private final AiHandler aiHandler;
+
+    private final Ai ai;
+
 
     Scanner scanner = new Scanner(System.in);
     User loggedinUser;
     String usName = "";
+
 
     public void start(){
         System.out.println("\nWelcome! Log in or create a user. Use help command for help.\n");
@@ -59,6 +66,9 @@ public class CliHandler {
                 }
             }else{
                 switch(line){
+                    case "ai":
+                        askAi();
+                        break;
                     case "logout":
                         loggedinUser = null;
                         usName = "";
@@ -137,8 +147,9 @@ public class CliHandler {
                         );
                         break;
                     case "exit":
-                        running = false;
+                        ai.closeClient();
                         loggedinUser = null;
+                        running = false;
                         break;
                     default:
                         System.out.println("Invalid input. Please try again.");
@@ -146,7 +157,33 @@ public class CliHandler {
                 }
             }
         }
+        scanner.close();
     }
+
+    private void askAi(){
+        System.out.println("What do you need?");
+        String input = scanner.nextLine();
+
+        String response =  ai.askGPT("This is a command: "+input+". Tell me, what do I need to do:\n" +
+                "                                        List your menu:menu\n" +
+                "                                        Create new submenu: format is=create menu:name\n" +
+                "                                        Rename submenu: format is=rename menu:oldSubMenuName:newSubMenuName\n" +
+                "                                        Delete submenu:format is= delete menu:subMenuName\n" +
+                "                                        Add app to submenu:format is= add app:subMenuName:appName\n" +
+                "                                        Remove app from submenu: format is=remove app menu:subMenuName:appName\n" +
+                "                                        Download app: format is=download app:appName:iconName\n" +
+                "                                        Delete app:format is= delete app:appName\n" +
+                "                                        Update app icon: format is=update app icon:appName:newIconName\n" +
+                "                                        Delete app icon:format is= delete app icon:appName\n" +
+                "                                        Run an app: format is=run app:appName\n" +
+                "                                        Set your theme:format is= set theme:themeName\n" +
+                "                                        Add theme:format is= add theme:themeName"+";  Give me the right command and parameter as a String.Format is: command:parameter or command:parameter1:parameter2 etc. and respond only using this command format.");
+
+
+        aiHandler.askAi(response,loggedinUser);
+    }
+
+
 
     private void addTheme(){
         System.out.println("Enter new theme name: ");
@@ -396,7 +433,7 @@ public class CliHandler {
         }
     }
 
-    private void listMenu(){
+    public void listMenu(){
         try {
             Menu menu = menuService.getFullMenuByUserId(loggedinUser.getId());
 
