@@ -219,6 +219,10 @@ public class CliHandler {
             menuService.addAppToSubMenu(menuId, "Development", "IntelliJ", loggedinUser);
             menuService.addAppToSubMenu(menuId, "Games", "Chess", loggedinUser);
 
+            backgroundService.addBackground(loggedinUser.getId(),"Cats");
+            loggedinUser=backgroundService.selectBackground(loggedinUser.getId(),"Cats");
+            System.out.println("Background selected: "+loggedinUser.getSelectedBackground().getName());
+
             System.out.println("Simulation created. Logged in as '" + username + "'.");
             listMenu();
 
