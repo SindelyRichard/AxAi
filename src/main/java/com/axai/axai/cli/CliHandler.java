@@ -1,7 +1,6 @@
 package com.axai.axai.cli;
 
 import com.axai.axai.ai.Ai;
-import com.axai.axai.ai.AiHandler;
 import com.axai.axai.entities.*;
 import com.axai.axai.service.AppService;
 import com.axai.axai.service.MenuService;
@@ -21,7 +20,6 @@ public class CliHandler {
     private final MenuService menuService;
     private final AppService appService;
     private final ThemeService themeService;
-    private final AiHandler aiHandler;
 
     private final Ai ai;
 
@@ -29,122 +27,42 @@ public class CliHandler {
     Scanner scanner = new Scanner(System.in);
     User loggedinUser;
     String usName = "";
+    boolean running = false;
 
 
     public void start(){
         System.out.println("\nWelcome! Log in or create a user. Use help command for help.\n");
 
-        boolean running = true;
+        running = true;
 
-        while(running){
-            System.out.print("\n"+usName+"> ");
+        while(running) {
+            System.out.print("\n" + usName + "> ");
             String line = scanner.nextLine().trim();
+            commandHandler(line);
+
+        }
+        scanner.close();
+    }
+
+    private void commandHandler(String input) {
+        String[] command = input.split(" ");
 
             if(loggedinUser == null) {
-                switch (line) {
+                switch (command[0]) {
                     case "help":
                         System.out.println(
                                 """
-                                        Create a user: create user
+                                        Create a user: create-user userName password
                                         Login: login
                                         Exit: exit
                                         """
                         );
                         break;
-                    case "create user":
-                        createUser();
+                    case "create-user":
+                        createUser(command);
                         break;
                     case "login":
                         login();
-                        break;
-                    case "exit":
-                        running = false;
-                        break;
-                    default:
-                        System.out.println("Invalid input. Please try again.");
-                        break;
-                }
-            }else{
-                switch(line){
-                    case "ai":
-                        askAi();
-                        break;
-                    case "logout":
-                        loggedinUser = null;
-                        usName = "";
-                        System.out.println("Logout successful.");
-                        break;
-                    case "rename user":
-                        renameUser();
-                        break;
-                    case "change password":
-                        changePassword();
-                        break;
-                    case "delete user":
-                        deleteUser();
-                        break;
-                    case "menu":
-                        listMenu();
-                        break;
-                    case "create menu":
-                        createSubMenu();
-                        break;
-                    case "rename menu":
-                        renameSubMenu();
-                        break;
-                    case "delete menu":
-                        deleteSubMenu();
-                        break;
-                    case "add app":
-                        addAppToSubMenu();
-                        break;
-                    case "remove app menu":
-                        removeAppFromSubMenu();
-                        break;
-                    case "download app":
-                        createApp();
-                        break;
-                    case "delete app":
-                        deleteApp();
-                        break;
-                    case "update app icon":
-                        updateAppIcon();
-                        break;
-                    case "delete app icon":
-                        deleteAppIcon();
-                        break;
-                    case "run app":
-                        runApp();
-                        break;
-                    case "set theme":
-                        setTheme();
-                        break;
-                    case "add theme":
-                        addTheme();
-                        break;
-                    case "help":
-                        System.out.println(
-                                """
-                                        Logout: logout
-                                        Exit: exit
-                                        Edit your username: rename user
-                                        Change your password: change password
-                                        Delete your user: delete user
-                                        List your menu:menu
-                                        Create new submenu: create menu
-                                        Rename submenu: rename menu
-                                        Delete submenu: delete menu
-                                        Add app to submenu: add app
-                                        Remove app from submenu: remove app menu
-                                        Create app: download app
-                                        Delete app: delete app
-                                        Update app icon: update app icon
-                                        Delete app icon: delete app icon
-                                        Run an app: run app
-                                        Set your theme: set theme
-                                        Add theme: add theme
-                                        """
-                        );
                         break;
                     case "exit":
                         ai.closeClient();
@@ -155,9 +73,99 @@ public class CliHandler {
                         System.out.println("Invalid input. Please try again.");
                         break;
                 }
-            }
+            }else{
+                    switch (command[0]) {
+                        case "logout":
+                            loggedinUser = null;
+                            usName = "";
+                            System.out.println("Logout successful.");
+                            break;
+                        case "rename-user":
+                            renameUser(command);
+                            break;
+                        case "change-password":
+                            changePassword(command);
+                            break;
+                        case "delete-user":
+                            deleteUser(command);
+                            break;
+                        case "ai":
+                            askAi();
+                            break;
+                        case "menu":
+                            listMenu();
+                            break;
+                        case "create-menu":
+                            createSubMenu(command);
+                            break;
+                        case "rename-menu":
+                            renameSubMenu(command);
+                            break;
+                        case "delete-menu":
+                            deleteSubMenu(command);
+                            break;
+                        case "add-app":
+                            addAppToSubMenu(command);
+                            break;
+                        case "remove-app-menu":
+                            removeAppFromSubMenu(command);
+                            break;
+                        case "download-app":
+                            createApp(command);
+                            break;
+                        case "delete-app":
+                            deleteApp(command);
+                            break;
+                        case "update-app-icon":
+                            updateAppIcon(command);
+                            break;
+                        case "delete-app-icon":
+                            deleteAppIcon(command);
+                            break;
+                        case "run-app":
+                            runApp(command);
+                            break;
+                        case "set-theme":
+                            setTheme(command);
+                            break;
+                        case "add-theme":
+                            addTheme(command);
+                            break;
+                        case "help":
+                            System.out.println(
+                                    """
+                                            Logout: logout
+                                            Exit: exit
+                                            Edit your username: rename-user newName passwd
+                                            Change your password: change-password password newPassword
+                                            Delete your user: delete-user passwd
+                                            List your menu:menu
+                                            Create new submenu: create-menu menuName
+                                            Rename submenu: rename-menu oldName NewName
+                                            Delete submenu: delete-menu menuName
+                                            Add app to submenu: add-app menuName appName
+                                            Remove app from submenu: remove-app-menu menuName appName
+                                            Create app: download-app appName iconName
+                                            Delete app: delete-app appName
+                                            Update app icon: update-app-icon appName newIconName
+                                            Delete app icon: delete-app-icon appName
+                                            Run an app: run-app appName
+                                            Set your theme: set-theme themeName
+                                            Add theme: add-theme themeName
+                                            """
+                            );
+                            break;
+                        case "exit":
+                            ai.closeClient();
+                            loggedinUser = null;
+                            running = false;
+                            break;
+                        default:
+                            System.out.println("Invalid input. Please try again.");
+                            break;
+
+                    }
         }
-        scanner.close();
     }
 
     private void askAi(){
@@ -166,40 +174,38 @@ public class CliHandler {
 
         String response =  ai.askGPT("This is a command: "+input+". Tell me, what do I need to do:\n" +
                 "                                        List your menu:menu\n" +
-                "                                        Create new submenu: format is=create menu:name\n" +
-                "                                        Rename submenu: format is=rename menu:oldSubMenuName:newSubMenuName\n" +
-                "                                        Delete submenu:format is= delete menu:subMenuName\n" +
-                "                                        Add app to submenu:format is= add app:subMenuName:appName\n" +
-                "                                        Remove app from submenu: format is=remove app menu:subMenuName:appName\n" +
-                "                                        Download app: format is=download app:appName:iconName\n" +
-                "                                        Delete app:format is= delete app:appName\n" +
-                "                                        Update app icon: format is=update app icon:appName:newIconName\n" +
-                "                                        Delete app icon:format is= delete app icon:appName\n" +
-                "                                        Run an app: format is=run app:appName\n" +
-                "                                        Set your theme:format is= set theme:themeName\n" +
-                "                                        Add theme:format is= add theme:themeName"+";  Give me the right command and parameter as a String.Format is: command:parameter or command:parameter1:parameter2 etc. and respond only using this command format.");
+                "                                        Create new submenu: format is=create-menu menuName\n" +
+                "                                        Rename submenu: format is=rename-menu oldSubMenuName newSubMenuName\n" +
+                "                                        Delete submenu:format is=delete-menu subMenuName\n" +
+                "                                        Add app to submenu:format is=add-app subMenuName appName\n" +
+                "                                        Remove app from submenu: format is=remove-app-menu subMenuName appName\n" +
+                "                                        Download app: format is=download-app appName iconName\n" +
+                "                                        Delete app:format is=delete-app appName\n" +
+                "                                        Update app icon: format is=update-app-icon appName newIconName\n" +
+                "                                        Delete app icon:format is=delete-app-icon appName\n" +
+                "                                        Run an app: format is=run-app appName\n" +
+                "                                        Set your theme:format is=set-theme themeName\n" +
+                "                                        Add theme:format is=add-theme themeName"+";  Give me the right command and parameter as a String.Format is: command parameter or command parameter1 parameter2.Example:download-app appName iconName.Put space between the parameters and Respond only with the command in the exact format, like: command param1 param2. DO NOT explain anything, DO NOT start the answer with anything else.");
 
 
-        aiHandler.askAi(response,loggedinUser);
+        commandHandler(response);
     }
 
 
 
-    private void addTheme(){
-        System.out.println("Enter new theme name: ");
-        String themeName = scanner.nextLine();
+        private void addTheme(String[] command) {
+            String themeName = command[1];
 
-        try{
-            Theme theme = themeService.addTheme(themeName);
-            System.out.println("Theme: " + theme.getName()+" created successfully.");
-        } catch (RuntimeException e) {
-            System.err.println("Error: " + e.getMessage());
+            try{
+                Theme theme = themeService.addTheme(themeName);
+                System.out.println("Theme: " + theme.getName()+" created successfully.");
+            } catch (RuntimeException e) {
+                System.err.println("Error: " + e.getMessage());
+            }
         }
-    }
 
-    private void setTheme(){
-        System.out.println("Enter theme name: ");
-        String themeName = scanner.nextLine();
+    private void setTheme(String[] command) {
+        String themeName = command[1];
 
         try{
             themeService.setTheme(loggedinUser.getUsername(), themeName);
@@ -209,9 +215,8 @@ public class CliHandler {
         }
     }
 
-    private void runApp(){
-        System.out.println("Enter app name:");
-        String appName = scanner.nextLine();
+    private void runApp(String[] command) {
+        String appName = command[1];
 
         try {
             appService.runApp(appName,loggedinUser);
@@ -220,9 +225,8 @@ public class CliHandler {
         }
     }
 
-    private void deleteAppIcon(){
-        System.out.println("Enter app name:");
-        String appName = scanner.nextLine();
+    private void deleteAppIcon(String[] command) {
+        String appName = command[1];
 
         try{
             App app = appService.deleteIcon(appName,loggedinUser);
@@ -232,12 +236,10 @@ public class CliHandler {
         }
     }
 
-    private void updateAppIcon() {
-        System.out.println("Enter app name:");
-        String appName = scanner.nextLine();
+    private void updateAppIcon(String[] command) {
+        String appName = command[1];
 
-        System.out.println("Enter new icon name:");
-        String newIcon = scanner.nextLine();
+        String newIcon = command[2];
 
         try {
             App app = appService.updateIcon(appName, newIcon,loggedinUser);
@@ -247,9 +249,8 @@ public class CliHandler {
         }
     }
 
-    private void deleteApp() {
-        System.out.println("Enter app name to delete:");
-        String appName = scanner.nextLine();
+    private void deleteApp(String[] command) {
+        String appName = command[1];
 
         try {
             appService.deleteApp(appName,loggedinUser);
@@ -259,12 +260,10 @@ public class CliHandler {
         }
     }
 
-    private void createApp() {
-        System.out.println("Enter app name:");
-        String name = scanner.nextLine();
+    private void createApp(String[] command) {
+        String name = command[1];
 
-        System.out.println("Enter icon name (or leave blank):");
-        String iconName = scanner.nextLine();
+        String iconName = command[2];
 
         try {
             App app = appService.addApp(name, iconName.isBlank() ? null : iconName,loggedinUser);
@@ -274,12 +273,10 @@ public class CliHandler {
         }
     }
 
-    private void removeAppFromSubMenu(){
-        System.out.println("Enter submenu name:");
-        String subMenuName = scanner.nextLine();
+    private void removeAppFromSubMenu(String[] command) {
+        String subMenuName = command[1];
 
-        System.out.println("Enter app name to remove:");
-        String appName = scanner.nextLine();
+        String appName = command[2];
 
         try {
             SubMenu updated = menuService.removeAppFromSubMenu(
@@ -293,12 +290,9 @@ public class CliHandler {
         }
     }
 
-    private void addAppToSubMenu() {
-        System.out.println("Enter submenu name to add apps to:");
-        String subMenuName = scanner.nextLine();
-
-        System.out.println("Enter app name:");
-        String appName = scanner.nextLine();
+    private void addAppToSubMenu(String[] command) {
+        String subMenuName = command[1];
+        String appName = command[2];
 
         try {
             SubMenu updated = menuService.addAppToSubMenu(
@@ -314,9 +308,8 @@ public class CliHandler {
     }
 
 
-    private void deleteSubMenu() {
-        System.out.println("Enter submenu name to delete:");
-        String subMenuName = scanner.nextLine();
+    private void deleteSubMenu(String[] command) {
+        String subMenuName = command[1];
 
         try {
             UUID menuId = loggedinUser.getMenu().getId();
@@ -327,11 +320,9 @@ public class CliHandler {
         }
     }
 
-    private void renameSubMenu() {
-        System.out.println("Enter current submenu name:");
-        String oldName = scanner.nextLine();
-        System.out.println("Enter new submenu name:");
-        String newName = scanner.nextLine();
+    private void renameSubMenu(String[] command) {
+        String oldName = command[1];
+        String newName = command[2];
 
         try {
             UUID menuId = loggedinUser.getMenu().getId();
@@ -342,9 +333,8 @@ public class CliHandler {
         }
     }
 
-    private void createSubMenu(){
-        System.out.println("Enter submenu name:");
-        String name = scanner.nextLine();
+    private void createSubMenu(String[] command) {
+        String name = command[1];
 
         try {
             UUID menuId = loggedinUser.getMenu().getId();
@@ -354,14 +344,13 @@ public class CliHandler {
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
+
     }
 
-    private void createUser(){
-        System.out.println("Enter username: ");
-        String username = scanner.nextLine();
+    private void createUser(String[] command){
+        String username = command[1];
 
-        System.out.println("Enter password: ");
-        String password = scanner.nextLine();
+        String password = command[2];
 
         User user = new User();
         user.setUsername(username);
@@ -377,11 +366,9 @@ public class CliHandler {
         }
     }
 
-    private void renameUser(){
-        System.out.println("Enter your new username: ");
-        String newName = scanner.nextLine();
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
+    private void renameUser(String[] command){
+        String newName = command[1];
+        String password = command[2];
 
         try {
             if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
@@ -396,12 +383,10 @@ public class CliHandler {
 
     }
 
-    private void changePassword(){
-        System.out.println("Enter your current password: ");
-        String password = scanner.nextLine();
+    private void changePassword(String[] command){
+        String password = command[1];
 
-        System.out.println("Enter your new password: ");
-        String newPassword = scanner.nextLine();
+        String newPassword = command[2];
 
         try {
             if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
@@ -416,9 +401,8 @@ public class CliHandler {
 
     }
 
-    private void deleteUser(){
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
+    private void deleteUser(String[] command){
+        String password = command[1];
 
         try {
             if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
