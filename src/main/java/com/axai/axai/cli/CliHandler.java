@@ -131,6 +131,9 @@ public class CliHandler {
                         case "add-theme":
                             addTheme(command);
                             break;
+                        case "simulation":
+                            runSimulation();
+                            break;
                         case "help":
                             System.out.println(
                                     """
@@ -168,6 +171,45 @@ public class CliHandler {
         }
     }
 
+    private void runSimulation() {
+        String username = "demoUser";
+        String password = "demoPass";
+
+        try {
+            try {
+                userService.createUser(username, password);
+            } catch (RuntimeException e) {
+                System.out.println("User already exists.");
+            }
+
+            loggedinUser = userService.getUser(username);
+            usName = username;
+
+            themeService.addTheme("Dark");
+            themeService.addTheme("Light");
+            themeService.setTheme(username, "Dark");
+
+            UUID menuId = loggedinUser.getMenu().getId();
+            menuService.createSubMenu(menuId, "Development");
+            menuService.createSubMenu(menuId, "Games");
+
+            App app1 = appService.addApp("IntelliJ", "jetbrains", loggedinUser);
+            App app2 = appService.addApp("Chess", "knight", loggedinUser);
+
+            System.out.println("App '" + app1.getName() + "' added successfully.");
+            System.out.println("App '" + app2.getName() + "' added successfully.");
+
+            menuService.addAppToSubMenu(menuId, "Development", "IntelliJ", loggedinUser);
+            menuService.addAppToSubMenu(menuId, "Games", "Chess", loggedinUser);
+
+            System.out.println("Simulation created. Logged in as '" + username + "'.");
+            listMenu();
+
+        } catch (RuntimeException e) {
+            System.out.println("Simulation failed: " + e.getMessage());
+        }
+    }
+
     private void askAi(){
         System.out.println("What do you need?");
         String input = scanner.nextLine();
@@ -185,7 +227,9 @@ public class CliHandler {
                 "                                        Delete app icon:format is=delete-app-icon appName\n" +
                 "                                        Run an app: format is=run-app appName\n" +
                 "                                        Set your theme:format is=set-theme themeName\n" +
-                "                                        Add theme:format is=add-theme themeName"+";  Give me the right command and parameter as a String.Format is: command parameter or command parameter1 parameter2.Example:download-app appName iconName.Put space between the parameters and Respond only with the command in the exact format, like: command param1 param2. DO NOT explain anything, DO NOT start the answer with anything else.");
+                "                                        Add theme:format is=add-theme themeName\n"+
+                "                                        Run a simulation: format is=simulation\n"+
+                "                                        ;  Give me the right command and parameter as a String.Format is: command parameter or command parameter1 parameter2.Example:download-app appName iconName.Put space between the parameters and Respond only with the command in the exact format, like: command param1 param2. DO NOT explain anything, DO NOT start the answer with anything else.");
 
 
         commandHandler(response);
