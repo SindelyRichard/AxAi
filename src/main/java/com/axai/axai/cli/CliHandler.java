@@ -29,7 +29,10 @@ public class CliHandler {
     String usName = "";
     boolean running = false;
 
-
+    /**
+     * Starts the CLI input loop.
+     * Displays welcome message and handles user input until exit command.
+     */
     public void start(){
         System.out.println("\nWelcome! Log in or create a user. Use help command for help.\n");
 
@@ -44,6 +47,11 @@ public class CliHandler {
         scanner.close();
     }
 
+    /**
+     * Parses and executes commands from user input.
+     *
+     * @param input raw command line input from the user
+     */
     private void commandHandler(String input) {
         String[] command = input.split(" ");
 
@@ -171,6 +179,9 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Runs a demo simulation creating a sample user, themes, menus, and apps.
+     */
     private void runSimulation() {
         String username = "demoUser";
         String password = "demoPass";
@@ -210,6 +221,9 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Sends a user question to the AI service and executes the command returned by AI.
+     */
     private void askAi(){
         System.out.println("What do you need?");
         String input = scanner.nextLine();
@@ -237,6 +251,7 @@ public class CliHandler {
 
 
 
+    // Adds a new theme.
         private void addTheme(String[] command) {
             String themeName = command[1];
 
@@ -248,8 +263,9 @@ public class CliHandler {
             }
         }
 
-    private void setTheme(String[] command) {
-        String themeName = command[1];
+        // Sets theme for the logged-in user.
+        private void setTheme(String[] command) {
+            String themeName = command[1];
 
         try{
             themeService.setTheme(loggedinUser.getUsername(), themeName);
@@ -259,6 +275,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Runs an app by name for the logged-in user.
+     *
+     * @param command command array, command[1] should be appName
+     */
     private void runApp(String[] command) {
         String appName = command[1];
 
@@ -269,6 +290,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Deletes the icon of the specified app.
+     *
+     * @param command command array, command[1] should be appName
+     */
     private void deleteAppIcon(String[] command) {
         String appName = command[1];
 
@@ -280,6 +306,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Updates the icon of an app.
+     *
+     * @param command command array, command[1] is appName, command[2] is new icon name
+     */
     private void updateAppIcon(String[] command) {
         String appName = command[1];
 
@@ -293,6 +324,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Deletes an app.
+     *
+     * @param command command array, command[1] is appName
+     */
     private void deleteApp(String[] command) {
         String appName = command[1];
 
@@ -304,6 +340,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Creates a new app with given name and icon.
+     *
+     * @param command command array, command[1] is appName, command[2] is iconName
+     */
     private void createApp(String[] command) {
         String name = command[1];
 
@@ -317,6 +358,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Removes an app from a submenu.
+     *
+     * @param command command array, command[1] is submenu name, command[2] is appName
+     */
     private void removeAppFromSubMenu(String[] command) {
         String subMenuName = command[1];
 
@@ -334,6 +380,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Adds an app to a submenu.
+     *
+     * @param command command array, command[1] is submenu name, command[2] is appName
+     */
     private void addAppToSubMenu(String[] command) {
         String subMenuName = command[1];
         String appName = command[2];
@@ -351,7 +402,11 @@ public class CliHandler {
         }
     }
 
-
+    /**
+     * Deletes a submenu from the user's menu.
+     *
+     * @param command command array, command[1] is submenu name
+     */
     private void deleteSubMenu(String[] command) {
         String subMenuName = command[1];
 
@@ -364,6 +419,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Renames a submenu.
+     *
+     * @param command command array, command[1] is old submenu name, command[2] is new submenu name
+     */
     private void renameSubMenu(String[] command) {
         String oldName = command[1];
         String newName = command[2];
@@ -377,6 +437,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Creates a new submenu for the user's menu.
+     *
+     * @param command command array, command[1] is new submenu name
+     */
     private void createSubMenu(String[] command) {
         String name = command[1];
 
@@ -391,6 +456,11 @@ public class CliHandler {
 
     }
 
+    /**
+     * Creates a new user from command parameters.
+     *
+     * @param command command array, command[1] is username, command[2] is password
+     */
     private void createUser(String[] command){
         String username = command[1];
 
@@ -410,6 +480,11 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Renames the logged-in user.
+     *
+     * @param command command array, command[1] is new username, command[2] is password
+     */
     private void renameUser(String[] command){
         String newName = command[1];
         String password = command[2];
@@ -427,6 +502,11 @@ public class CliHandler {
 
     }
 
+    /**
+     * Changes password of logged-in user.
+     *
+     * @param command command array, command[1] is old password, command[2] is new password
+     */
     private void changePassword(String[] command){
         String password = command[1];
 
@@ -445,6 +525,11 @@ public class CliHandler {
 
     }
 
+    /**
+     * Deletes the logged-in user if password matches.
+     *
+     * @param command command array, command[1] is password
+     */
     private void deleteUser(String[] command){
         String password = command[1];
 
@@ -461,6 +546,7 @@ public class CliHandler {
         }
     }
 
+    // Lists all submenus and their apps for the logged-in user.
     public void listMenu(){
         try {
             Menu menu = menuService.getFullMenuByUserId(loggedinUser.getId());
@@ -489,6 +575,10 @@ public class CliHandler {
         }
     }
 
+    /**
+     * Attempts to log in a user by prompting for username and password.
+     * Updates loggedinUser and usName if successful.
+     */
     private void login(){
         System.out.println("Enter username: ");
         String username = scanner.nextLine();

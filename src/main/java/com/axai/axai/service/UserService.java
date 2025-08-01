@@ -22,6 +22,10 @@ public class UserService {
     private final MenuRepository menuRepository;
     private final SubMenuRepository  subMenuRepository;
 
+    /*
+    Creates a new user with the given username and password.
+    Also sets up default theme, background, menu, submenus, and initial apps.
+    */
     public User createUser(String username, String password) {
         if(userRepository.existsByUsername(username)){
             throw new RuntimeException("Username already taken");
@@ -77,18 +81,21 @@ public class UserService {
         return userRepository.save(savedUser);
     }
 
+    // Renames an existing user identified by their UUID.
     public User renameUser(UUID id,String newUsername){
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setUsername(newUsername);
         return userRepository.save(user);
     }
 
+    // Changes the password of an existing user.
     public User changePassword(UUID id,String newPassword){
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setPassword(passwordEncoder.encode(newPassword));
         return userRepository.save(user);
     }
 
+    //Deletes a user and all associated entities like menus, submenus, apps, and backgrounds.
     @Transactional
     public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
@@ -114,11 +121,13 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    // Checks if a user with the specified username exists and verifies the password.
     public boolean checkIfUserExists(String username,String password){
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
         return passwordEncoder.matches(password,user.getPassword());
     }
+    // Retrieves a user entity by their username.
     public User getUser(String username){
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }

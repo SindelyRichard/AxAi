@@ -15,6 +15,7 @@ public class ThemeService {
     private final ThemeRepository themeRepository;
     private final UserRepository  userRepository;
 
+    // Adds a new theme to the system.
     public Theme addTheme(String themeName) {
         if (themeRepository.existsByName(themeName)) {
             throw new RuntimeException("Theme already exists");
@@ -24,6 +25,7 @@ public class ThemeService {
         return themeRepository.save(theme);
     }
 
+    // Sets theme for a specific user by username.
     public void setTheme(String username,String themeName) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 

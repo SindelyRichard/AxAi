@@ -22,6 +22,7 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final AppRepository  appRepository;
 
+    // Creates a new submenu
     public SubMenu createSubMenu(UUID menuId, String subMenuName){
         Menu menu =  menuRepository.findById(menuId).orElseThrow(() -> new RuntimeException("Menu not found"));
         if(subMenuRepository.existsByNameAndMenu_Id(subMenuName,menuId)){
@@ -34,6 +35,7 @@ public class MenuService {
         return subMenuRepository.save(subMenu);
     }
 
+    // Updates the name of an existing submenu.
     public SubMenu updateSubMenuName(UUID menuId,String currentName, String newName){
         SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(currentName,menuId);
 
@@ -41,6 +43,7 @@ public class MenuService {
         return subMenuRepository.save(subMenu);
     }
 
+    // Adds an app to a submenu.
     @Transactional
     public SubMenu addAppToSubMenu(UUID menuId, String subMenuName, String appName, User user) {
         SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
@@ -50,6 +53,7 @@ public class MenuService {
         return subMenuRepository.save(subMenu);
     }
 
+    // Removes an app from submenu.
     @Transactional
     public SubMenu removeAppFromSubMenu(UUID menuId, String subMenuName, String appName) {
         SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
@@ -57,11 +61,18 @@ public class MenuService {
         return subMenuRepository.save(subMenu);
     }
 
+    // Deletes a submenu from menu.
     public void deleteSubMenu(UUID menuId, String subMenuName) {
         SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
         subMenuRepository.delete(subMenu);
     }
 
+    /**
+     * Menu with all its SubMenus and their Apps by user ID.
+     *
+     * @param userId the ID of the User
+     * @return the Menu entity with SubMenus and Apps
+     */
     @Transactional
     public Menu getFullMenuByUserId(UUID userId) {
         Menu menu = menuRepository.findMenuWithSubMenusByUserId(userId);

@@ -15,6 +15,7 @@ public class BackgroundService {
     private final BackgroundRepository backgroundRepository;
     private final UserRepository userRepository;
 
+    // Adds a new background for a specific user.
     public Background addBackground(UUID userId, String backgroundName){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         if(backgroundRepository.existsByName(backgroundName)){
@@ -28,6 +29,7 @@ public class BackgroundService {
 
     }
 
+    // Sets the selected background for a specific user.
     public User selectBackground(UUID userId, String backgroundName){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Background background = backgroundRepository.findByNameAndUser(backgroundName,user).orElseThrow(() -> new RuntimeException("Background does not exists"));
