@@ -8,3 +8,5 @@
    ```
 
 3.The program can create the database if it does not exist.
+
+For more details about the application and available commands, see the full documentation [here](docs/AxAi%20documentation.pdf).
