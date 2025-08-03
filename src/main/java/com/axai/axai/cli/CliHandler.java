@@ -503,8 +503,9 @@ public class CliHandler {
 
         try {
             if (userService.checkIfUserExists(loggedinUser.getUsername(), password)) {
-                User user = userService.renameUser(loggedinUser.getId(), newName);
-                System.out.println("Username updated to " + user.getUsername() + "successfully.");
+                loggedinUser = userService.renameUser(loggedinUser.getId(), newName);
+                usName = loggedinUser.getUsername();
+                System.out.println("Username updated to " + loggedinUser.getUsername() + " successfully.");
             } else {
                 System.out.println("Invalid password.");
             }
