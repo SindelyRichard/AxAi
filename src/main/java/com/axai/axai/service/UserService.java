@@ -84,6 +84,10 @@ public class UserService {
     // Renames an existing user identified by their UUID.
     public User renameUser(UUID id,String newUsername){
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!user.getUsername().equals(newUsername) && userRepository.findByUsername(newUsername).isPresent()) {
+            throw new RuntimeException("Username already taken");
+        }
+
         user.setUsername(newUsername);
         return userRepository.save(user);
     }
