@@ -37,8 +37,11 @@ public class MenuService {
 
     // Updates the name of an existing submenu.
     public SubMenu updateSubMenuName(UUID menuId,String currentName, String newName){
-        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(currentName,menuId);
-
+        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(currentName,menuId).orElseThrow(()->new RuntimeException("SubMenu not found"));
+        Optional<SubMenu> newSubmenu = subMenuRepository.findSubMenuByNameAndMenuId(newName,menuId);
+        if(newSubmenu.isPresent()){
+            throw new RuntimeException("SubMenu already exists");
+        }
         subMenu.setName(newName);
         return subMenuRepository.save(subMenu);
     }
@@ -46,7 +49,7 @@ public class MenuService {
     // Adds an app to a submenu.
     @Transactional
     public SubMenu addAppToSubMenu(UUID menuId, String subMenuName, String appName, User user) {
-        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
+        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId).orElseThrow(() -> new RuntimeException("SubMenu not found"));
         App appToAdd = appRepository.findByNameAndUser(appName,user).orElseThrow(() -> new RuntimeException("App not found"));
         List<App> appsInSubMenu = subMenu.getApps();
         appsInSubMenu.add(appToAdd);
@@ -56,14 +59,14 @@ public class MenuService {
     // Removes an app from submenu.
     @Transactional
     public SubMenu removeAppFromSubMenu(UUID menuId, String subMenuName, String appName) {
-        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
+        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId).orElseThrow(() -> new RuntimeException("SubMenu not found"));
         subMenu.getApps().removeIf(app -> app.getName().equals(appName));
         return subMenuRepository.save(subMenu);
     }
 
     // Deletes a submenu from menu.
     public void deleteSubMenu(UUID menuId, String subMenuName) {
-        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId);
+        SubMenu subMenu = subMenuRepository.findSubMenuByNameAndMenuId(subMenuName, menuId).orElseThrow(() -> new RuntimeException("SubMenu not found"));
         subMenuRepository.delete(subMenu);
     }
 
